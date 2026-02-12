@@ -1,0 +1,47 @@
+{
+  "name": "swynx-lite",
+  "version": "1.0.1",
+  "description": "Dead code detection and cleanup for 35 languages",
+  "type": "module",
+  "bin": {
+    "swynx-lite": "./bin/swynx-lite"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/swynx-io/swynx-lite.git"
+  },
+  "homepage": "https://lite.swynx.io",
+  "scripts": {
+    "sync": "node scripts/sync-from-pro.mjs"
+  },
+  "keywords": [
+    "dead-code",
+    "deadcode",
+    "unused-code",
+    "unused-files",
+    "cleanup",
+    "security",
+    "cwe",
+    "static-analysis",
+    "quarantine",
+    "treeshaking",
+    "codebase-health",
+    "knip"
+  ],
+  "author": "Swynx",
+  "license": "BUSL-1.1",
+  "dependencies": {
+    "@babel/parser": "^7.24.0",
+    "@babel/traverse": "^7.24.0",
+    "commander": "^12.1.0",
+    "glob": "^10.3.0"
+  }
+}

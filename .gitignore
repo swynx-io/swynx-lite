@@ -1,0 +1,5 @@
+node_modules/
+.swynx-quarantine/
+.swynx-snapshots/
+.swynx-lite-init
+*.tgz
