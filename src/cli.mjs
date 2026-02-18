@@ -53,12 +53,28 @@ program
     process.exit(exitCode);
   });
 
+// ── quarantine ───────────────────────────────────────────────────────────────
+
+program
+  .command('quarantine')
+  .argument('[path]', 'Path to scan', '.')
+  .description('Safely move dead files to .swynx-quarantine/ (reversible)')
+  .option('--dry-run', 'Preview what would be quarantined')
+  .option('--yes', 'Skip confirmation prompt')
+  .option('--json', 'Output as JSON')
+  .option('--no-color', 'Disable ANSI colours')
+  .action(async (path, opts) => {
+    const { runQuarantine } = await import('./quarantine-cmd.mjs');
+    const { exitCode } = await runQuarantine(path, opts);
+    process.exit(exitCode);
+  });
+
 // ── clean ────────────────────────────────────────────────────────────────────
 
 program
   .command('clean')
   .argument('[path]', 'Path to clean', '.')
-  .description('Remove dead code with quarantine safety net')
+  .description('Quarantine dead files + clean dead imports and barrel exports')
   .option('--dry-run', 'Preview what would be removed')
   .option('--no-quarantine', 'Delete directly without quarantine backup')
   .option('--no-import-clean', 'Skip cleaning dead imports from live files')
@@ -252,7 +268,7 @@ function confirmPrompt(message) {
 // If no command provided, default to `scan .`
 // This makes `npx swynx-lite` work like `npx knip`
 const args = process.argv.slice(2);
-const commands = ['scan', 'clean', 'restore', 'purge', 'init', 'help'];
+const commands = ['scan', 'quarantine', 'clean', 'restore', 'purge', 'init', 'help'];
 const hasCommand = args.some(a => commands.includes(a));
 const hasHelpOrVersion = args.some(a => ['-h', '--help', '-v', '--version', '--pro'].includes(a));
 

@@ -183,7 +183,7 @@ export function renderScanOutput(results, options = {}) {
       lines.push(`  ${c(DIM, '──', nc)} ${c(BOLD, 'What Next', nc)} ${c(DIM, hr, nc)}`);
       lines.push('');
       if (deadCount > 0) {
-        lines.push(`   Run  ${c(BRIGHT_CYAN, 'swynx-lite clean', nc)}  to remove ${formatNumber(deadCount)} dead file${deadCount === 1 ? '' : 's'} ${c(DIM, `(saves ${formatBytes(summary.totalDeadBytes)})`, nc)}`);
+        lines.push(`   Run  ${c(BRIGHT_CYAN, 'swynx-lite quarantine', nc)}  to safely move ${formatNumber(deadCount)} dead file${deadCount === 1 ? '' : 's'} to .swynx-quarantine/ ${c(DIM, `(${formatBytes(summary.totalDeadBytes)})`, nc)}`);
       }
       if (partialFiles.length > 0) {
         const totalDeadExports = partialFiles.reduce((sum, f) => sum + (f.deadExports || []).length, 0);
@@ -262,6 +262,49 @@ export function renderCleanOutput(results, options = {}) {
     lines.push('');
     lines.push(`  Undo with  ${c(BRIGHT_CYAN, 'swynx-lite restore', nc)}`);
     lines.push(`  Finalise with  ${c(BRIGHT_CYAN, 'swynx-lite purge', nc)}`);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+/**
+ * Render quarantine results to the console
+ */
+export function renderQuarantineOutput(results, options = {}) {
+  const { noColor = false } = options;
+  const lines = [];
+  const nc = noColor;
+
+  lines.push('');
+  lines.push(`  ${c(BOLD + BRIGHT_CYAN, 'swynx lite', nc)} ${c(DIM, 'v1.0.0', nc)}${results.dryRun ? c(DIM, ' — dry run (no files will be moved)', nc) : ''}`);
+  lines.push('');
+
+  if (results.dryRun) {
+    lines.push(`  Would quarantine ${c(BOLD, formatNumber(results.filesQuarantined), nc)} file${results.filesQuarantined === 1 ? '' : 's'} ${c(DIM, `(${formatBytes(results.bytesRemoved)})`, nc)}:`);
+    lines.push('');
+
+    const files = results.files || [];
+    const showCount = Math.min(10, files.length);
+    for (let i = 0; i < showCount; i++) {
+      const f = files[i];
+      const path = typeof f === 'string' ? f : (f.file || f.path || '');
+      const size = typeof f === 'object' && f.size ? formatBytes(f.size) : '';
+      lines.push(`   ${c(WHITE, pad(path, 42), nc)} ${c(DIM, rpad(size, 10), nc)}`);
+    }
+    if (files.length > 10) {
+      lines.push(`   ${c(DIM, `... and ${files.length - 10} more`, nc)}`);
+    }
+    lines.push('');
+  } else {
+    lines.push(`  ${c(BRIGHT_GREEN, '\u2713', nc)} Quarantined ${formatNumber(results.filesQuarantined)} file${results.filesQuarantined === 1 ? '' : 's'} to .swynx-quarantine/ ${c(DIM, `(${formatBytes(results.bytesRemoved)})`, nc)}`);
+    lines.push('');
+    lines.push(`  ${c(BOLD, 'Test your app now.', nc)} If anything breaks:`);
+    lines.push(`   Run  ${c(BRIGHT_CYAN, 'swynx-lite restore', nc)}  to bring everything back`);
+    lines.push('');
+    lines.push(`  If everything works:`);
+    lines.push(`   Run  ${c(BRIGHT_CYAN, 'swynx-lite purge', nc)}  to permanently delete the quarantined files`);
+    lines.push(`   Run  ${c(BRIGHT_CYAN, 'swynx-lite clean', nc)}  to also clean dead imports and barrel exports`);
     lines.push('');
   }
 
